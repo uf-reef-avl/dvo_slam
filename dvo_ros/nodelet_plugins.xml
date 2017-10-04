@@ -1,7 +1,0 @@
-<library path="lib/libcamera_tracker_nodelet">
-  <class name="dvo_ros/camera_tracker" type="dvo_ros::CameraTrackerNodelet" base_class_type="nodelet::Nodelet">
-    <description>
-      CameraTrackerNodelet
-    </description>
-  </class>
-</library>
