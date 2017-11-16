@@ -78,8 +78,9 @@ public:
   void addKeyframeMeasurement(const dvo::core::AffineTransformd& pose, const dvo::core::Matrix6d& information);
 
   void optimize();
-private:
+  // UNCC modification 11/16/2017 to allow extension of this class
   LocalMap(const dvo::core::RgbdImagePyramid::Ptr& keyframe, const dvo::core::AffineTransformd& keyframe_pose);
+private:
 
   boost::scoped_ptr<internal::LocalMapImpl> impl_;
 };
