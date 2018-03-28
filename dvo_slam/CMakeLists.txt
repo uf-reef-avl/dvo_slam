@@ -37,7 +37,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES dvo_slam
-  DEPENDS OpenCV
+#  DEPENDS OpenCV
   CATKIN_DEPENDS message_runtime
 )
 
