@@ -27,6 +27,9 @@
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/CameraInfo.h>
 
+#include <image_transport/image_transport.h>
+#include <image_transport/subscriber_filter.h>
+
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
@@ -37,8 +40,8 @@ namespace dvo_ros
 typedef message_filters::sync_policies::ApproximateTime<
                 sensor_msgs::Image,
                 sensor_msgs::Image,
-                sensor_msgs::CameraInfo,
-                sensor_msgs::CameraInfo
+                sensor_msgs::CameraInfo//,
+                //sensor_msgs::CameraInfo
                 > RGBDWithCameraInfoPolicy;
 
 class CameraBase
@@ -47,12 +50,14 @@ protected:
   ros::NodeHandle nh_;
   ros::NodeHandle nh_private_;
 
-  message_filters::Subscriber<sensor_msgs::Image> rgb_image_subscriber_;
-  message_filters::Subscriber<sensor_msgs::Image> depth_image_subscriber_;
+  image_transport::SubscriberFilter rgb_image_subscriber_;
+  image_transport::SubscriberFilter depth_image_subscriber_;
+  //message_filters::Subscriber<sensor_msgs::Image> rgb_image_subscriber_;
+  //message_filters::Subscriber<sensor_msgs::Image> depth_image_subscriber_;
   message_filters::Subscriber<sensor_msgs::CameraInfo> rgb_camera_info_subscriber_;
-  message_filters::Subscriber<sensor_msgs::CameraInfo> depth_camera_info_subscriber_;
+  //message_filters::Subscriber<sensor_msgs::CameraInfo> depth_camera_info_subscriber_;
 
-  message_filters::Synchronizer<RGBDWithCameraInfoPolicy> synchronizer_;
+  //message_filters::Synchronizer<RGBDWithCameraInfoPolicy> synchronizer_;
 
   bool isSynchronizedImageStreamRunning();
 
@@ -61,13 +66,13 @@ protected:
 public:
   CameraBase(ros::NodeHandle& nh, ros::NodeHandle& nh_private);
   virtual ~CameraBase();
-
+  void initializeSubscribersAndPublishers();
   virtual void handleImages(
       const sensor_msgs::Image::ConstPtr& rgb_image_msg,
       const sensor_msgs::Image::ConstPtr& depth_image_msg,
-      const sensor_msgs::CameraInfo::ConstPtr& rgb_camera_info_msg,
-      const sensor_msgs::CameraInfo::ConstPtr& depth_camera_info_msg
-  ) = 0;
+      const sensor_msgs::CameraInfo::ConstPtr& rgb_camera_info_msg) = 0;
+//    const sensor_msgs::CameraInfo::ConstPtr& depth_camera_info_msg
+//  ) = 0;
 private:
   message_filters::Connection connection;
   bool connected;

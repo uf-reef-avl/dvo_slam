@@ -107,6 +107,8 @@ void CameraDenseTracker::reset(const sensor_msgs::CameraInfo::ConstPtr& camera_i
 
 void CameraDenseTracker::handleConfig(dvo_ros::CameraDenseTrackerConfig& config, uint32_t level)
 {
+  std::cout << "handleConfig" << std::endl;
+  return;
   if(level == 0) return;
 
   if(level & CameraDenseTracker_RunDenseTracking)
@@ -187,10 +189,11 @@ void CameraDenseTracker::handlePose(const geometry_msgs::PoseWithCovarianceStamp
 void CameraDenseTracker::handleImages(
     const sensor_msgs::Image::ConstPtr& rgb_image_msg,
     const sensor_msgs::Image::ConstPtr& depth_image_msg,
-    const sensor_msgs::CameraInfo::ConstPtr& rgb_camera_info_msg,
-    const sensor_msgs::CameraInfo::ConstPtr& depth_camera_info_msg
-)
+    const sensor_msgs::CameraInfo::ConstPtr& rgb_camera_info_msg)
+//    const sensor_msgs::CameraInfo::ConstPtr& depth_camera_info_msg
+//)
 {
+  std::cout << "HERE0" << std::endl;
   static stopwatch sw_callback("callback");
   sw_callback.start();
 
@@ -198,12 +201,12 @@ void CameraDenseTracker::handleImages(
   boost::mutex::scoped_lock lock(tracker_mutex_);
 
   // different size of rgb and depth image
-  if(depth_camera_info_msg->width != rgb_camera_info_msg->width || depth_camera_info_msg->height != rgb_camera_info_msg->height)
-  {
-    ROS_WARN("RGB and depth image have different size!");
-
-    return;
-  }
+  //if(depth_camera_info_msg->width != rgb_camera_info_msg->width || depth_camera_info_msg->height != rgb_camera_info_msg->height)
+  //{
+  //  ROS_WARN("RGB and depth image have different size!");
+  //
+  // return;
+  //}
 
   // something has changed
   if(hasChanged(rgb_camera_info_msg))
@@ -267,7 +270,7 @@ void CameraDenseTracker::handleImages(
   sw_match.start();
 
   bool success = tracker->match(*reference, *current, transform);
-
+  std::cout << "HERE" << std::endl;
   sw_match.stopAndPrint();
 
   if(success)

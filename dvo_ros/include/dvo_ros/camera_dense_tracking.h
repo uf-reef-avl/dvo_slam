@@ -91,9 +91,9 @@ public:
   virtual void handleImages(
       const sensor_msgs::Image::ConstPtr& rgb_image_msg,
       const sensor_msgs::Image::ConstPtr& depth_image_msg,
-      const sensor_msgs::CameraInfo::ConstPtr& rgb_camera_info_msg,
-      const sensor_msgs::CameraInfo::ConstPtr& depth_camera_info_msg
-  );
+      const sensor_msgs::CameraInfo::ConstPtr& rgb_camera_info_msg);
+//      const sensor_msgs::CameraInfo::ConstPtr& depth_camera_info_msg
+//  );
 
   void handlePose(const geometry_msgs::PoseWithCovarianceStampedConstPtr& pose);
 
