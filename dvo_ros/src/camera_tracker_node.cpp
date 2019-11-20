@@ -32,9 +32,8 @@ int main(int argc, char **argv) {
     dvo_ros::CameraDenseTracker dense_tracker(nh, nh_private);
 
     ROS_INFO("started camera_tracker...");
-
+    
     ros::MultiThreadedSpinner spinner(4);
     spinner.spin();
-
     return 0;
 }

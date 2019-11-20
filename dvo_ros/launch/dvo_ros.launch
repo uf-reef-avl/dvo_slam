@@ -4,22 +4,30 @@
     <arg name="run_reconfigure"       default="true"/>
 
     <arg name="camera" default="camera"/>
+    <arg name="tf_base_link_frame_id"     default="base_link"/>
+    <arg name="tf_camera_parent_frame_id" default="world"/>
     
     <arg name="debug" default="false" />
     <arg name="launch_prefix" value="xterm -e gdb --args" if="$(arg debug)" />
     <arg name="launch_prefix" value="" unless="$(arg debug)" />
-    <node launch-prefix="$(arg launch_prefix)" pkg="dvo_ros" type="camera_tracker" name="camera_tracker" output="screen" required="true">
+    <node launch-prefix="$(arg launch_prefix)" pkg="dvo_ros" type="camera_tracker" name="camera_tracker" output="screen">
         <!-- sensor re-mappings for UNC Charlotte bag data (default) -->
         <remap from="rgb_topic" to="/camera/rgb/input_image"/>
         <remap from="depth_topic" to="/camera/depth_registered/input_image"/>
         <remap from="camera_info_topic" to="/camera/rgb/camera_info"/>        
     </node>
 
+    <node pkg="tf2_ros" type="static_transform_publisher" name="origin_to_world"  
+    args="0.0 0.0 0.0 0 0 0 1 global $(arg tf_base_link_frame_id)"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="origin_to_camera_parent"  
+    args="0.0 0.0 0.5 0.5 -0.5 0.5 -0.5 $(arg tf_base_link_frame_id) $(arg tf_camera_parent_frame_id)"/>
+
     <!-- RVIZ SECTION -->
     <!--<group unless="$(arg backend_only)">-->
-        <arg name="rviz_config_file" default="dvo_ros.rviz"/>
-        <node pkg="rviz" type="rviz" name="rviz" output="screen" 
-              args="-d $(find dvo_ros)/rviz/$(arg rviz_config_file)" if="$(arg run_rviz)"/>
+    <arg name="rviz_config_file" default="dvo_ros.rviz"/>
+    <node pkg="rviz" type="rviz" name="rviz" output="screen" 
+          args="-d $(find dvo_ros)/rviz/$(arg rviz_config_file)" if="$(arg run_rviz)"/>
     <!--</group>-->
 
     <!-- DYNAMIC RECONFIGURE SECTION -->
@@ -42,6 +50,21 @@
             <arg name="num_worker_threads"  value="4" />
         </include>
 
+        <!-- Hardware depth registration -->
+        <arg name="depth_registration" default="true" />
+
+        <arg name="rgb_processing"                  default="true"  />
+        <arg name="debayer_processing"              default="false" />
+        <arg name="ir_processing"                   default="false" />
+        <arg name="depth_processing"                default="true" />
+        <arg name="depth_registered_processing"     default="true" />
+        <arg name="disparity_processing"            default="false" />
+        <arg name="disparity_registered_processing" default="false" />
+        <arg name="hw_registered_processing"        default="true" if="$(arg depth_registration)" />
+        <arg name="sw_registered_processing"        default="false" if="$(arg depth_registration)" />
+        <arg name="hw_registered_processing"        default="false" unless="$(arg depth_registration)" />
+        <arg name="sw_registered_processing"        default="true" unless="$(arg depth_registration)" />
+
         <!-- Load astra driver -->
         <include if="$(arg run_slam_live)"
                  file="$(find astra_launch)/launch/includes/device.launch.xml">            
@@ -63,5 +86,25 @@
             <arg name="auto_white_balance"              value="true" />
         </include>
         
+        <!-- Load standard constellation of processing nodelets -->
+        <include file="$(find rgbd_launch)/launch/includes/processing.launch.xml">
+            <arg name="manager"                         value="$(arg camera)_nodelet_manager" />
+            <arg name="rgb"                             value="rgb" />
+            <arg name="ir"                              value="ir" />
+            <arg name="depth"                           value="depth" />
+            <arg name="respawn"                         value="false" />
+            <arg name="rgb_processing"                  value="$(arg rgb_processing)" />
+            <arg name="debayer_processing"              value="$(arg debayer_processing)" />
+            <arg name="ir_processing"                   value="$(arg ir_processing)" />
+            <arg name="depth_processing"                value="$(arg depth_processing)" />
+            <arg name="depth_registered_processing"     value="$(arg depth_registered_processing)" />
+            <arg name="disparity_processing"            value="$(arg disparity_processing)" /> 
+            <arg name="disparity_registered_processing" value="$(arg disparity_registered_processing)" />
+            <arg name="hw_registered_processing"        value="$(arg hw_registered_processing)" />
+            <arg name="sw_registered_processing"        value="$(arg sw_registered_processing)" />
+        </include>        
     </group>
+    
+    <!--    <node pkg="rosservice" type="rosservice" name="quiet_astra_driver1" args="call -wait /camera/driver/set_logger_level &quot;{logger: 'rosout', level: 'fatal'}&quot;"/> 
+    <node pkg="rosservice" type="rosservice" name="quiet_astra_driver2" args="call -wait /camera/camera_nodelet_manager/set_logger_level &quot;{logger: 'rosout', level: 'fatal'}&quot;"/>-->
 </launch>

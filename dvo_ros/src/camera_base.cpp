@@ -31,16 +31,20 @@ CameraBase::CameraBase(ros::NodeHandle& nh, ros::NodeHandle& nh_private) :
   //depth_image_subscriber_(nh, "camera/depth_registered/image_rect_raw", 1),
   //rgb_camera_info_subscriber_(nh, "camera/rgb/camera_info", 1),
   //depth_camera_info_subscriber_(nh, "camera/depth_registered/camera_info", 1),
-
-  //synchronizer_(RGBDWithCameraInfoPolicy(5), rgb_image_subscriber_, depth_image_subscriber_, rgb_camera_info_subscriber_, depth_camera_info_subscriber_),
+  rgb_image_subscriber_(nh, "camera/rgb/input_image", 1),
+  depth_image_subscriber_(nh, "camera/depth_registered/input_image", 1),
+  rgb_camera_info_subscriber_(nh, "camera/rgb/camera_info", 1),
+  depth_camera_info_subscriber_(nh, "camera/depth_registered/camera_info", 1),
+  synchronizer_(RGBDWithCameraInfoPolicy(5), rgb_image_subscriber_, depth_image_subscriber_, rgb_camera_info_subscriber_, depth_camera_info_subscriber_),
   //synchronizer_(RGBDWithCameraInfoPolicy(5), rgb_image_subscriber_, depth_image_subscriber_, rgb_camera_info_subscriber_),
   connected(false)
 {
-    initializeSubscribersAndPublishers();
+    //initializeSubscribersAndPublishers();
 
     //std::cout << " Connection = " << (connected==true) << std::endl;
  }
 
+#ifdef NOT_DEFINED
     void CameraBase::initializeSubscribersAndPublishers() {
 
         image_transport::ImageTransport depth_image_transport(nh_);
@@ -62,7 +66,8 @@ CameraBase::CameraBase(ros::NodeHandle& nh, ros::NodeHandle& nh_private) :
                 this, _1, _2, _3));
         connected = true;
     }
-
+#endif
+    
 CameraBase::~CameraBase()
 {
   stopSynchronizedImageStream();
@@ -77,9 +82,8 @@ void CameraBase::startSynchronizedImageStream()
 {
   if(!connected)
   {
-    std::cout << "Connecting camera." << std::endl;
-    //connection = synchronizer_.registerCallback(boost::bind(&CameraBase::handleImages, this, _1, _2, _3));
-    //connected = true;
+    connection = synchronizer_.registerCallback(boost::bind(&CameraBase::handleImages, this, _1, _2, _3, _4));
+    connected = true;
   }
 }
 
