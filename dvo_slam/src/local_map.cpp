@@ -31,7 +31,7 @@
 #include <g2o/types/slam3d/edge_se3.h>
 #include <g2o/types/slam3d/edge_se3_offset.h>
 
-#define _G2O_2018_
+//#define _G2O_2018_
 
 namespace dvo_slam
 {
