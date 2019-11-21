@@ -1,0 +1,51 @@
+<launch>
+    <!-- runtime configuration -->
+    <arg name="run_rviz"              default="true"/>
+    <arg name="run_slam"         default="true"/>
+    <arg name="run_reconfigure"       default="true"/>
+
+    <arg name="bagfile_path_A" default="/home.local/local-arwillis/NetBeansProjects/ROS_DVO_SLAM/ros_ws/rgbd-slam_2019-11-21-15-32-27.bag"/> 
+    <arg name="bagfile_path_B" default="/home.md1/server/bagfiles/rgbd_dataset_freiburg1_room_validation.bag"/>
+    <arg name="bagfile_path" default="$(arg bagfile_path_A)"/>     
+    <arg name="bagfile_playback_rate" default="0.1"/>
+
+    <!-- namespaces -->
+    <arg name="camera" default="camera"/>
+    
+    <!-- TF frames -->
+    <arg name="tf_base_link_frame_id"     default="base_link"/>
+    <arg name="tf_camera_parent_frame_id" default="world"/>
+        
+    <arg name="debug" default="false" />
+    <arg name="launch_prefix" value="xterm -e gdb --args" if="$(arg debug)" />
+    <arg name="launch_prefix" value="" unless="$(arg debug)" />
+
+    <!-- Freiburg data -->
+    <remap from="/camera/depth/image" to="/camera/depth_registered/input_image"/>    
+    <remap from="/camera/depth/camera_info" to="/camera/depth_registered/camera_info"/>    
+    <remap from="/camera/rgb/image_color" to="/camera/rgb/input_image"/>
+    <remap from="/camera/rgb/camera_info" to="/camera/rgb/camera_info"/>
+    <group ns="dvo_vis">
+        <node launch-prefix="$(arg launch_prefix)" pkg="dvo_slam" type="camera_keyframe_tracker" name="keyframe_tracker" output="screen">   
+        </node>
+    </group>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="origin_to_world"  
+          args="0.0 0.0 0.0 0 0 0 1 global $(arg tf_base_link_frame_id)"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="origin_to_camera_parent"  
+          args="0.0 0.0 0.5 0.5 -0.5 0.5 -0.5 $(arg tf_base_link_frame_id) $(arg tf_camera_parent_frame_id)"/>  
+
+    <!-- RVIZ SECTION -->
+    <!--<group unless="$(arg backend_only)">-->
+    <arg name="rviz_config_file" default="dvo_slam.rviz"/>
+    <node pkg="rviz" type="rviz" name="rviz" output="screen" 
+          args="-d $(find dvo_slam)/rviz/$(arg rviz_config_file)" if="$(arg run_rviz)"/>
+    <!--</group>-->
+
+    <!-- DYNAMIC RECONFIGURE SECTION -->
+    <node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure" output="screen" if="$(arg run_reconfigure)"/> 
+    
+    <param name="use_sim_time" value="true" />
+    <node pkg="rosbag" type="play" name="player" output="screen" args="-r $(arg bagfile_playback_rate) --clock --keep-alive $(arg bagfile_path)"/>
+</launch>

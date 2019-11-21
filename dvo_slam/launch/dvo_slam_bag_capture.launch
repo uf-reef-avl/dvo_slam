@@ -1,41 +1,23 @@
 <launch>
     <!-- runtime configuration -->
     <arg name="run_rviz"              default="true"/>
-    <arg name="run_slam_live"         default="true"/>
-    <arg name="run_reconfigure"       default="true"/>
+    <arg name="record_bagfile"        default="true"/>
+    <arg name="savefile" default="/tmp/rgbd-slam.bag"/>
 
     <!-- namespaces -->
     <arg name="camera" default="camera"/>
-    
-    <!-- TF frames -->
-    <arg name="tf_base_link_frame_id"     default="base_link"/>
-    <arg name="tf_camera_parent_frame_id" default="world"/>
+
+    <arg name="rgb_image_topic" value="$(arg camera)/rgb/input_image"/>
+    <arg name="depth_image_topic" value="$(arg camera)/depth_registered/input_image"/>
+    <arg name="rgb_camera_info_topic" value="$(arg camera)/rgb/camera_info"/>
+    <arg name="depth_camera_info_topic" value="$(arg camera)/depth_registered/camera_info"/>
+        
+    <arg name="bag_topics" default="$(arg rgb_image_topic) $(arg rgb_camera_info_topic) $(arg depth_image_topic) $(arg depth_camera_info_topic)"/>
+    <node pkg="rosbag" type="record" name="rosbag_record" args="record -o $(arg savefile) $(arg bag_topics)" if="$(arg record_bagfile)" />
         
     <arg name="debug" default="false" />
     <arg name="launch_prefix" value="xterm -e gdb --args" if="$(arg debug)" />
     <arg name="launch_prefix" value="" unless="$(arg debug)" />
-
-   
-    <group ns="dvo_vis">
-        <node launch-prefix="$(arg launch_prefix)" pkg="dvo_slam" type="camera_keyframe_tracker" name="keyframe_tracker" output="screen">   
-        </node>
-    </group>
-
-    <node pkg="tf2_ros" type="static_transform_publisher" name="origin_to_world"  
-          args="0.0 0.0 0.0 0 0 0 1 global $(arg tf_base_link_frame_id)"/>
-
-    <node pkg="tf2_ros" type="static_transform_publisher" name="origin_to_camera_parent"  
-          args="0.0 0.0 0.5 0.5 -0.5 0.5 -0.5 $(arg tf_base_link_frame_id) $(arg tf_camera_parent_frame_id)"/>  
-
-    <!-- RVIZ SECTION -->
-    <!--<group unless="$(arg backend_only)">-->
-    <arg name="rviz_config_file" default="dvo_slam.rviz"/>
-    <node pkg="rviz" type="rviz" name="rviz" output="screen" 
-          args="-d $(find dvo_slam)/rviz/$(arg rviz_config_file)" if="$(arg run_rviz)"/>
-    <!--</group>-->
-
-    <!-- DYNAMIC RECONFIGURE SECTION -->
-    <node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure" output="screen" if="$(arg run_reconfigure)"/> 
 
     <group ns="$(arg camera)">
         <param name="driver/data_skip" value="0" />
@@ -45,10 +27,7 @@
         <remap from="rgb/image_raw" to="rgb/image_rect"/>
         <remap from="rgb/camera_info" to="rgb/camera_info"/>-->
         <!--<remap from="depth_registered/camera_info" to="depth_registered/camera_info"/>-->
-
-        
-        <include if="$(arg run_slam_live)"
-                 file="$(find rgbd_launch)/launch/includes/manager.launch.xml">
+        <include file="$(find rgbd_launch)/launch/includes/manager.launch.xml">
             <arg name="name" value="$(arg camera)_nodelet_manager" />
             <arg name="debug" value="false" />
             <arg name="num_worker_threads"  value="4" />
@@ -70,8 +49,7 @@
         <arg name="sw_registered_processing"        default="true" unless="$(arg depth_registration)" />
 
         <!-- Load astra driver -->
-        <include if="$(arg run_slam_live)"
-                 file="$(find astra_launch)/launch/includes/device.launch.xml">            
+        <include file="$(find astra_launch)/launch/includes/device.launch.xml">            
             <arg name="manager"                         value="$(arg camera)_nodelet_manager" />
             <arg name="device_id"                       value="#1" />
             <arg name="bootorder"                       value="0" />
@@ -107,8 +85,11 @@
             <arg name="hw_registered_processing"        value="$(arg hw_registered_processing)" />
             <arg name="sw_registered_processing"        value="$(arg sw_registered_processing)" />
         </include> -->
-    </group>
-    
-    <!--    <node pkg="rosservice" type="rosservice" name="quiet_astra_driver1" args="call -wait /camera/driver/set_logger_level &quot;{logger: 'rosout', level: 'fatal'}&quot;"/> 
-    <node pkg="rosservice" type="rosservice" name="quiet_astra_driver2" args="call -wait /camera/camera_nodelet_manager/set_logger_level &quot;{logger: 'rosout', level: 'fatal'}&quot;"/>-->
+    </group>  
+
+    <!-- RVIZ SECTION -->
+    <arg name="rviz_config_file" default="dvo_slam.rviz"/>
+    <node pkg="rviz" type="rviz" name="rviz" output="screen" 
+          args="-d $(find dvo_slam)/rviz/$(arg rviz_config_file)" if="$(arg run_rviz)"/>
+
 </launch>
