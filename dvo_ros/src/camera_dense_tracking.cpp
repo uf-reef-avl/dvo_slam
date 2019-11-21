@@ -65,7 +65,7 @@ CameraDenseTracker::CameraDenseTracker(ros::NodeHandle& nh, ros::NodeHandle& nh_
   pose_sub_ = nh.subscribe<geometry_msgs::PoseWithCovarianceStamped>("pelican/pose", 1, &CameraDenseTracker::handlePose, this);
 
   latest_absolute_transform_.setIdentity();
-  accumulated_transform.setIdentity();
+  accumulated_transform.setIdentity(); 
 
   //dvo::visualization::Visualizer::instance()
   //  .enabled(false)
