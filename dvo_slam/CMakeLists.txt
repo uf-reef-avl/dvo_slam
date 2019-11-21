@@ -81,12 +81,12 @@ target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
 
-#add_executable(camera_keyframe_tracker
-#  src/camera_keyframe_tracker_node.cpp
-#)
+add_executable(camera_keyframe_tracker
+  src/camera_keyframe_tracker_node.cpp
+)
 
-#target_link_libraries(camera_keyframe_tracker
-#  ${PROJECT_NAME}
-#)
+target_link_libraries(camera_keyframe_tracker
+  ${PROJECT_NAME}
+)
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)

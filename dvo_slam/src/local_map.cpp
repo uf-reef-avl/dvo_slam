@@ -31,6 +31,8 @@
 #include <g2o/types/slam3d/edge_se3.h>
 #include <g2o/types/slam3d/edge_se3_offset.h>
 
+#define _G2O_2018_
+
 namespace dvo_slam
 {
 
@@ -73,14 +75,23 @@ struct LocalMapImpl
     max_vertex_id_(1),
     max_edge_id_(1)
   {
-    // g2o setup
     graph_.setAlgorithm(
-        new g2o::OptimizationAlgorithmLevenberg(
-            new BlockSolver(
-                new LinearSolver()
-            )
-        )
-    );
+#ifdef _G2O_2018_
+                    new g2o::OptimizationAlgorithmLevenberg(
+                    g2o::make_unique<g2o::BlockSolver_6_3>(
+                    g2o::make_unique<g2o::LinearSolverEigen < g2o::BlockSolver_6_3::PoseMatrixType >> ())));
+#else
+                    new g2o::OptimizationAlgorithmLevenberg(new g2o::BlockSolver_6_3(new g2o::LinearSolverEigen<g2o::BlockSolver_6_3::PoseMatrixType>())));
+            //new g2o::OptimizationAlgorithmLevenberg(new g2o::BlockSolver_6_3(new g2o::LinearSolverCholmod<g2o::BlockSolver_6_3::PoseMatrixType>())));
+            //new g2o::OptimizationAlgorithmLevenberg(new g2o::BlockSolverX(new g2o::LinearSolverEigen<g2o::BlockSolverX::PoseMatrixType>())));
+//    graph_.setAlgorithm(
+//        new g2o::OptimizationAlgorithmLevenberg(
+//            new BlockSolver(
+//                new LinearSolver()
+//            )
+//        )
+//    );
+#endif    // g2o setup
     graph_.setVerbose(false);
 
     keyframe_vertex_ = addFrameVertex(ros::Time(keyframe->timestamp()));

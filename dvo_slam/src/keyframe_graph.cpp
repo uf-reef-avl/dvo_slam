@@ -134,10 +134,19 @@ public:
   {
     // g2o setup
     keyframegraph_.setAlgorithm(
-        new g2o::OptimizationAlgorithmDogleg(
-            new BlockSolver(
-                new LinearSolver()
-    )));
+#ifdef _G2O_2018_  
+                new g2o::OptimizationAlgorithmDogleg(g2o::make_unique<g2o::BlockSolver_6_3>(
+                g2o::make_unique<g2o::LinearSolverEigen < g2o::BlockSolver_6_3::PoseMatrixType >> ())));
+#else
+                new g2o::OptimizationAlgorithmDogleg(new g2o::BlockSolver_6_3(
+                new g2o::LinearSolverEigen<g2o::BlockSolver_6_3::PoseMatrixType>())));
+        //                new g2o::LinearSolverCholmod<g2o::BlockSolver_6_3::PoseMatrixType>()
+//        new g2o::OptimizationAlgorithmDogleg(
+//            new BlockSolver(
+//                new LinearSolver()
+//    )));
+#endif
+
     keyframegraph_.setVerbose(false);
 
     configure(cfg_);

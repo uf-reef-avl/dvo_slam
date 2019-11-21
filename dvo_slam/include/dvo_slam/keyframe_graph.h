@@ -30,6 +30,8 @@
 
 #include <boost/function.hpp>
 
+#define _G2O_2018_
+
 namespace dvo_slam
 {
 namespace internal
