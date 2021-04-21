@@ -1,0 +1,11 @@
+<launch>
+    <include file="$(find realsense2_camera)/launch/rs_rgbd.launch"/>
+    <group ns="dvo_vis">
+        <node pkg="dvo_ros" type="camera_tracker" name="camera_tracker" output="screen">   
+		<remap from="/camera/depth_registered/camera_info" to="/camera/aligned_depth_to_color/camera_info"/>
+		<remap from="/camera/depth_registered/input_image" to="/camera/aligned_depth_to_color/image_raw"/>
+		<remap from="/camera/rgb/camera_info" to="/camera/color/camera_info"/>
+		<remap from="/camera/rgb/input_image" to="/camera/color/image_raw"/>      
+	</node>
+    </group>
+</launch>

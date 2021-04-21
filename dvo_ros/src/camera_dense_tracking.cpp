@@ -34,7 +34,7 @@
 #include <dvo_ros/util/configtools.h>
 #include <dvo_ros/visualization/ros_camera_trajectory_visualizer.h>
 
-#define PRINT_POSE_AND_COVARIANCE 1
+#define PRINT_POSE_AND_COVARIANCE 0
 
 namespace dvo_ros
 {
@@ -267,18 +267,18 @@ void CameraDenseTracker::handleImages(
   static stopwatch sw_match("match", 100);
   sw_match.start();
 
-#ifdef PRINT_POSE_AND_COVARIANCE
+//#ifdef PRINT_POSE_AND_COVARIANCE
   dvo::DenseTracker::Result result;
   bool success = tracker->match(*reference, *current, result);
   transform = result.Transformation;
-  std::stringstream ss;
-  Eigen::IOFormat OctaveFmt(Eigen::StreamPrecision, 0, ", ", ";\n", "", "", "[", "]");
-  ss << "handleImages::(" << rgb_camera_info_msg->header.seq << ")::pose" << transform.matrix().format(OctaveFmt) << std::endl;
-  ss << "handleImages::(" << rgb_camera_info_msg->header.seq << ")::information" << result.Information.matrix().format(OctaveFmt) << std::endl;
-  std::cerr << ss.str() << std::endl;
-#else
-  bool success = tracker->match(*reference, *current, transform);
-#endif
+  //std::stringstream ss;
+  //Eigen::IOFormat OctaveFmt(Eigen::StreamPrecision, 0, ", ", ";\n", "", "", "[", "]");
+  //ss << "handleImages::(" << rgb_camera_info_msg->header.seq << ")::pose" << transform.matrix().format(OctaveFmt) << std::endl;
+  //ss << "handleImages::(" << rgb_camera_info_msg->header.seq << ")::information" << result.Information.matrix().format(OctaveFmt) << std::endl;
+  //std::cerr << ss.str() << std::endl;
+//#else
+  //bool success = tracker->match(*reference, *current, transform);
+//#endif
 
   sw_match.stopAndPrint();
 
@@ -288,6 +288,8 @@ void CameraDenseTracker::handleImages(
     accumulated_transform = accumulated_transform * transform;
 
     Eigen::Matrix<double, 6, 6> covariance;
+	
+	publishPose(h, transform, "baselink_estimate");
 
     //tracker->getCovarianceEstimate(covariance);
 
@@ -336,7 +338,7 @@ void CameraDenseTracker::publishTransform(const std_msgs::Header& header, const 
 
 void CameraDenseTracker::publishPose(const std_msgs::Header& header, const Eigen::Affine3d& transform, const std::string frame)
 {
-  if(pose_pub_.getNumSubscribers() == 0) return;
+  
 
   geometry_msgs::PoseWithCovarianceStampedPtr msg(new geometry_msgs::PoseWithCovarianceStamped);
 

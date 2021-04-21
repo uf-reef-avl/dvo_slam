@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 
 project(dvo_benchmark)
-
+set(CMAKE_CXX_STANDARD 14)
 LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake_modules")
 
 find_package(catkin REQUIRED COMPONENTS roscpp dvo_core dvo_ros dvo_slam cv_bridge)

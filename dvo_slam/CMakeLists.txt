@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 
 project(dvo_slam)
-
+set(CMAKE_CXX_STANDARD 14)
 LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake_modules")
 
 find_package(catkin REQUIRED COMPONENTS roscpp dynamic_reconfigure dvo_core dvo_ros sensor_msgs image_transport message_filters cv_bridge visualization_msgs interactive_markers message_generation geometry_msgs)

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 
 project(dvo_ros)
-
+set(CMAKE_CXX_STANDARD 14)
 find_package(catkin REQUIRED COMPONENTS roscpp tf tf_conversions eigen_conversions dynamic_reconfigure dvo_core sensor_msgs image_transport message_filters cv_bridge visualization_msgs interactive_markers pcl_ros)
 find_package(cmake_modules REQUIRED)
 find_package(PCL REQUIRED COMPONENTS common)
