@@ -28,7 +28,7 @@
 #include <ros/console.h>
 
 #include <tf/transform_listener.h>
-
+#include <tf2_eigen/tf2_eigen.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/CameraInfo.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
@@ -70,6 +70,7 @@ private:
   tf::TransformListener tl;
 
   ros::Publisher pose_pub_;
+  ros::Publisher odom_pub_;
   ros::Subscriber pose_sub_;
 
   ReconfigureServer reconfigure_server_;

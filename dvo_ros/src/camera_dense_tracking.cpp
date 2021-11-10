@@ -55,6 +55,7 @@ CameraDenseTracker::CameraDenseTracker(ros::NodeHandle& nh, ros::NodeHandle& nh_
   ROS_INFO("CameraDenseTracker::ctor(...)");
 
   pose_pub_ = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("rgbd/pose", 1);
+    odom_pub_ = nh.advertise<geometry_msgs::PoseStamped>("rgbd/odom",10);
 
   ReconfigureServer::CallbackType reconfigure_server_callback = boost::bind(&CameraDenseTracker::handleConfig, this, _1, _2);
   reconfigure_server_.setCallback(reconfigure_server_callback);
@@ -266,19 +267,9 @@ void CameraDenseTracker::handleImages(
 
   static stopwatch sw_match("match", 100);
   sw_match.start();
-
-//#ifdef PRINT_POSE_AND_COVARIANCE
   dvo::DenseTracker::Result result;
   bool success = tracker->match(*reference, *current, result);
   transform = result.Transformation;
-  //std::stringstream ss;
-  //Eigen::IOFormat OctaveFmt(Eigen::StreamPrecision, 0, ", ", ";\n", "", "", "[", "]");
-  //ss << "handleImages::(" << rgb_camera_info_msg->header.seq << ")::pose" << transform.matrix().format(OctaveFmt) << std::endl;
-  //ss << "handleImages::(" << rgb_camera_info_msg->header.seq << ")::information" << result.Information.matrix().format(OctaveFmt) << std::endl;
-  //std::cerr << ss.str() << std::endl;
-//#else
-  //bool success = tracker->match(*reference, *current, transform);
-//#endif
 
   sw_match.stopAndPrint();
 
@@ -290,10 +281,10 @@ void CameraDenseTracker::handleImages(
     Eigen::Matrix<double, 6, 6> covariance;
 	
 	publishPose(h, transform, "baselink_estimate");
-
-    //tracker->getCovarianceEstimate(covariance);
-
-    //std::cerr << covariance << std::endl << std::endl;
+	geometry_msgs::PoseStamped odom_message;
+	odom_message.header = h;
+	odom_message.pose = tf2::toMsg(result.Transformation);
+	odom_pub_.publish(odom_message);
 
     vis_->trajectory("estimate")->
         color(dvo::visualization::Color::red())

@@ -1,14 +1,13 @@
 <launch>
     <!-- runtime configuration -->
-    <arg name="run_rviz"              default="true"/>
+    <arg name="run_rviz"              default="false"/>
     <arg name="run_slam"         default="true"/>
-    <arg name="run_reconfigure"       default="true"/>
+    <arg name="run_reconfigure"       default="false"/>
 
-    <arg name="bagfile_path_A" default="/home.local/local-arwillis/NetBeansProjects/ROS_DVO_SLAM/ros_ws/rgbd-slam_2019-11-21-15-32-27.bag"/> 
-    <arg name="bagfile_path_B" default="/tmp/rgbd-slam_2019-11-26-13-35-07.bag"/> 
-    <arg name="bagfile_path_C" default="/home.md1/server/bagfiles/rgbd_dataset_freiburg1_room_validation.bag"/>
-    <arg name="bagfile_path" default="$(arg bagfile_path_A)"/>     
-    <arg name="bagfile_playback_rate" default="0.8"/>
+    <arg name="bagfile_path_A" default="/home/prashant/Downloads/rgbd_dataset_freiburg3_long_office_household.bag"/>
+    <arg name="bagfile_path_B" default="/home/prashant/Downloads/20190222_002_bag_filtered.bag"/>
+    <arg name="bagfile_path" default="$(arg bagfile_path_B)"/>
+    <arg name="bagfile_playback_rate" default="1.0"/>
 
     <!-- namespaces -->
     <arg name="camera" default="camera"/>
@@ -24,12 +23,12 @@
     <arg name="launch_prefix" value="" unless="$(arg debug)" />-->
 
     <!-- Freiburg data -->
-    <remap from="/camera/depth/image" to="/camera/depth_registered/input_image"/>    
-    <remap from="/camera/depth/camera_info" to="/camera/depth_registered/camera_info"/>    
-    <remap from="/camera/rgb/image_color" to="/camera/rgb/input_image"/>
-    <remap from="/camera/rgb/camera_info" to="/camera/rgb/camera_info"/>
     <group ns="dvo_vis">
-        <node launch-prefix="$(arg launch_prefix)" pkg="dvo_ros" type="camera_tracker" name="camera_tracker" output="screen">   
+        <node launch-prefix="$(arg launch_prefix)" pkg="dvo_ros" type="camera_tracker" name="camera_tracker" output="screen">
+            <remap from="/camera/depth_registered/input_image" to="/camera/depth/image"/>
+            <remap from="/camera/depth_registered/camera_info" to="/camera/depth/camera_info"/>
+            <remap from="/camera/rgb/input_image" to="/camera/rgb/image_color"/>
+            <remap from="/camera/rgb/camera_info" to="/camera/rgb/camera_info"/>
         </node>
     </group>
 
