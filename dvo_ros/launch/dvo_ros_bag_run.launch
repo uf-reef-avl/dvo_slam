@@ -6,7 +6,7 @@
 
     <arg name="bagfile_path_A" default="/home/prashant/Downloads/rgbd_dataset_freiburg3_long_office_household.bag"/>
     <arg name="bagfile_path_B" default="/home/prashant/Downloads/20190222_002_bag_filtered.bag"/>
-    <arg name="bagfile_path" default="$(arg bagfile_path_B)"/>
+    <arg name="bagfile_path" default="$(arg bagfile_path_A)"/>
     <arg name="bagfile_playback_rate" default="1.0"/>
 
     <!-- namespaces -->
